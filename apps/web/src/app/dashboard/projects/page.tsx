@@ -163,7 +163,7 @@ export default function AllProjectsPage() {
               <div className="text-xl font-bold text-white">{fmtDate(selected.releaseDate)}</div>
               <div className="text-xs text-slate-500 mt-1">Planned release date</div>
               <div className="mt-3">
-                <RagStatus score={selected.healthScore} />
+                <RagStatus status={selected.healthScore >= 80 ? 'GREEN' : selected.healthScore >= 60 ? 'AMBER' : 'RED'} />
               </div>
             </div>
 
