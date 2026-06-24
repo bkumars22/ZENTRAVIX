@@ -1,0 +1,17 @@
+{
+  "name": "auranex",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "db:seed": "cd packages/db && npx ts-node prisma/seed.ts",
+    "db:migrate": "cd packages/db && npx prisma migrate deploy",
+    "db:studio": "cd packages/db && npx prisma studio"
+  },
+  "devDependencies": {
+    "turbo": "^1.13.0",
+    "typescript": "^5.4.0"
+  }
+}

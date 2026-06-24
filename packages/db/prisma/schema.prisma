@@ -1,0 +1,346 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleLevel {
+  JUNIOR
+  SENIOR
+  LEAD
+  MANAGER
+  VP
+  EXECUTIVE
+  CEO
+}
+
+enum DepartmentType {
+  TECHNOLOGY
+  FINANCE
+  HR
+  SALES
+  CUSTOMER
+  PRODUCT
+  INFRASTRUCTURE
+  COMPLIANCE
+  RELEASE
+}
+
+enum ProjectStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  AT_RISK
+}
+
+enum AlertSeverity {
+  CRITICAL
+  WARNING
+  INFO
+}
+
+enum DealStage {
+  PROSPECTING
+  QUALIFICATION
+  PROPOSAL
+  NEGOTIATION
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum TicketPriority {
+  P0
+  P1
+  P2
+  P3
+}
+
+enum LeaveType {
+  CASUAL
+  SICK
+  EARNED
+  UNPAID
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Department {
+  id               String         @id @default(cuid())
+  name             String
+  type             DepartmentType
+  budgetAllocated  Float          @default(0)
+  budgetSpent      Float          @default(0)
+  headCount        Int            @default(0)
+  createdAt        DateTime       @default(now())
+
+  users            User[]
+  budgets          Budget[]
+  expenses         Expense[]
+  projects         Project[]
+  alerSummaries    AiSummary[]
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String
+  passwordHash String
+  role         RoleLevel
+  title        String
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+
+  departmentId  String?
+  department    Department? @relation(fields: [departmentId], references: [id])
+  managerId     String?
+  manager       User?       @relation("Reports", fields: [managerId], references: [id])
+  reports       User[]      @relation("Reports")
+
+  pullRequests  PullRequest[]
+  leaves        Leave[]
+  reviews       PerformanceReview[] @relation("Reviewer")
+  reviewed      PerformanceReview[] @relation("Reviewed")
+  tasks         Task[]
+  timesheets    Timesheet[]
+  aiAlerts      AiAlert[]
+}
+
+model Project {
+  id              String        @id @default(cuid())
+  name            String
+  description     String        @default("")
+  repoUrl         String
+  jiraKey         String        @default("")
+  status          ProjectStatus @default(ACTIVE)
+  healthScore     Int           @default(0)
+  qaipScore       Float         @default(0)
+  qaipPassRate    Float         @default(0)
+  qaipDefects     Int           @default(0)
+  qaipP0Count     Int           @default(0)
+  qaipP1Count     Int           @default(0)
+  qaipLastRun     DateTime?
+  techStack       String        @default("")
+  releaseDate     DateTime?
+  sprintNumber    Int           @default(1)
+  velocity        Int           @default(0)
+  openP0s         Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  departmentId    String?
+  department      Department?   @relation(fields: [departmentId], references: [id])
+
+  sprints         Sprint[]
+  pullRequests    PullRequest[]
+  releases        Release[]
+  aiAlerts        AiAlert[]
+}
+
+model Sprint {
+  id               String   @id @default(cuid())
+  name             String
+  committedPoints  Int      @default(0)
+  completedPoints  Int      @default(0)
+  velocity         Int      @default(0)
+  startDate        DateTime
+  endDate          DateTime
+  isActive         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id])
+}
+
+model PullRequest {
+  id            String   @id @default(cuid())
+  title         String
+  githubPrNum   Int
+  status        String   @default("OPEN")
+  linesChanged  Int      @default(0)
+  daysOpen      Int      @default(0)
+  branch        String   @default("main")
+  createdAt     DateTime @default(now())
+
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id])
+}
+
+model Budget {
+  id              String   @id @default(cuid())
+  fiscalYear      Int
+  fiscalQuarter   Int
+  allocated       Float
+  spent           Float    @default(0)
+  category        String
+  createdAt       DateTime @default(now())
+
+  departmentId    String
+  department      Department @relation(fields: [departmentId], references: [id])
+}
+
+model Expense {
+  id           String   @id @default(cuid())
+  category     String
+  amount       Float
+  vendor       String
+  status       String   @default("APPROVED")
+  description  String   @default("")
+  date         DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+}
+
+model Employee {
+  id          String   @id @default(cuid())
+  designation String
+  joiningDate DateTime
+  salary      Float
+  skills      String[]
+  createdAt   DateTime @default(now())
+}
+
+model Leave {
+  id         String      @id @default(cuid())
+  type       LeaveType
+  startDate  DateTime
+  endDate    DateTime
+  status     LeaveStatus @default(PENDING)
+  reason     String      @default("")
+  createdAt  DateTime    @default(now())
+
+  employeeId String
+  employee   User        @relation(fields: [employeeId], references: [id])
+}
+
+model PerformanceReview {
+  id         String   @id @default(cuid())
+  rating     Float
+  goals      String[]
+  notes      String   @default("")
+  period     String
+  createdAt  DateTime @default(now())
+
+  reviewerId String
+  reviewer   User     @relation("Reviewer", fields: [reviewerId], references: [id])
+  revieweeId String
+  reviewee   User     @relation("Reviewed", fields: [revieweeId], references: [id])
+}
+
+model Deal {
+  id             String    @id @default(cuid())
+  name           String
+  stage          DealStage
+  value          Float
+  probability    Int       @default(50)
+  expectedClose  DateTime
+  customerName   String
+  arr            Float     @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Customer {
+  id           String   @id @default(cuid())
+  name         String
+  arr          Float    @default(0)
+  healthScore  Int      @default(80)
+  npsScore     Int      @default(60)
+  churnRisk    Float    @default(0.1)
+  renewalDate  DateTime
+  createdAt    DateTime @default(now())
+
+  tickets      Ticket[]
+}
+
+model Ticket {
+  id          String         @id @default(cuid())
+  title       String
+  priority    TicketPriority
+  status      String         @default("OPEN")
+  slaBreach   Boolean        @default(false)
+  openedAt    DateTime       @default(now())
+  resolvedAt  DateTime?
+  createdAt   DateTime       @default(now())
+
+  customerId  String
+  customer    Customer       @relation(fields: [customerId], references: [id])
+}
+
+model Release {
+  id            String   @id @default(cuid())
+  version       String
+  plannedDate   DateTime
+  status        String   @default("PLANNED")
+  qaipScore     Float    @default(0)
+  testCoverage  Float    @default(0)
+  p0Count       Int      @default(0)
+  p1Count       Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+}
+
+model AiAlert {
+  id            String        @id @default(cuid())
+  severity      AlertSeverity
+  category      String
+  message       String
+  actionNeeded  String        @default("")
+  targetRole    RoleLevel
+  isRead        Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+
+  projectId     String?
+  project       Project?      @relation(fields: [projectId], references: [id])
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id])
+}
+
+model AiSummary {
+  id           String    @id @default(cuid())
+  roleLevel    RoleLevel
+  summaryText  String
+  generatedAt  DateTime  @default(now())
+
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @default("")
+  status      String   @default("TODO")
+  priority    String   @default("MEDIUM")
+  dueDate     DateTime?
+  projectKey  String   @default("")
+  createdAt   DateTime @default(now())
+
+  assigneeId  String
+  assignee    User     @relation(fields: [assigneeId], references: [id])
+}
+
+model Timesheet {
+  id          String   @id @default(cuid())
+  weekStart   DateTime
+  totalHours  Float    @default(0)
+  submitted   Boolean  @default(false)
+  entries     Json     @default("[]")
+  createdAt   DateTime @default(now())
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}

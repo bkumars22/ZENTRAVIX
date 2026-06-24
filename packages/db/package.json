@@ -1,0 +1,19 @@
+{
+  "name": "@auranex/db",
+  "version": "1.0.0",
+  "scripts": {
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.12.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.12.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0",
+    "bcryptjs": "^2.4.3",
+    "@types/bcryptjs": "^2.4.6"
+  }
+}
