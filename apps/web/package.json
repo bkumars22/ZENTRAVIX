@@ -1,5 +1,5 @@
-﻿{
-  "name": "@ZENTRAVIX/web",
+{
+  "name": "@zentravix/web",
   "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
@@ -10,7 +10,6 @@
     "next": "14.2.3",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "next-auth": "^5.0.0-beta.19",
     "axios": "^1.6.8",
     "socket.io-client": "^4.7.5",
     "recharts": "^2.12.0",
