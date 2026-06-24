@@ -17,13 +17,13 @@ const ROLE_ROUTES: Record<string, string> = {
 
 // Demo users — frontend-only demo mode (no backend required)
 const DEMO_USERS: Record<string, { password: string; name: string; title: string; role: string }> = {
-  'ceo@zentravix.io':       { password: 'Zentravix@2026', name: 'Rajesh Kumar',    title: 'Chief Executive Officer',    role: 'CEO' },
-  'cto@zentravix.io':       { password: 'Zentravix@2026', name: 'Priya Sharma',    title: 'Chief Technology Officer',   role: 'EXECUTIVE' },
-  'cfo@zentravix.io':       { password: 'Zentravix@2026', name: 'Arjun Mehta',     title: 'Chief Financial Officer',    role: 'EXECUTIVE' },
-  'vp.eng@zentravix.io':    { password: 'Zentravix@2026', name: 'Kavitha Nair',    title: 'VP Engineering',             role: 'VP' },
-  'manager@zentravix.io':   { password: 'Zentravix@2026', name: 'Suresh Reddy',    title: 'Engineering Manager',        role: 'MANAGER' },
-  'senior.dev@zentravix.io':{ password: 'Zentravix@2026', name: 'Ananya Singh',    title: 'Senior Software Engineer',   role: 'SENIOR' },
-  'junior.qa@zentravix.io': { password: 'Zentravix@2026', name: 'Dev Kumar',       title: 'QA Engineer',                role: 'JUNIOR' },
+  'ceo@zentravix.io':       { password: 'Zentravix@2026', name: 'KumaraSwamy B', title: 'Chief Executive Officer',    role: 'CEO' },
+  'cto@zentravix.io':       { password: 'Zentravix@2026', name: 'KumaraSwamy B', title: 'Chief Technology Officer',   role: 'EXECUTIVE' },
+  'cfo@zentravix.io':       { password: 'Zentravix@2026', name: 'KumaraSwamy B', title: 'Chief Financial Officer',    role: 'EXECUTIVE' },
+  'vp.eng@zentravix.io':    { password: 'Zentravix@2026', name: 'KumaraSwamy B', title: 'VP Engineering',             role: 'VP' },
+  'manager@zentravix.io':   { password: 'Zentravix@2026', name: 'KumaraSwamy B', title: 'Engineering Manager',        role: 'MANAGER' },
+  'senior.dev@zentravix.io':{ password: 'Zentravix@2026', name: 'KumaraSwamy B', title: 'Senior Software Engineer',   role: 'SENIOR' },
+  'junior.qa@zentravix.io': { password: 'Zentravix@2026', name: 'KumaraSwamy B', title: 'QA Engineer',                role: 'JUNIOR' },
 }
 
 function makeDemoToken(user: { name: string; title: string; role: string; email: string }) {
