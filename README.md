@@ -26,6 +26,17 @@ Frontend: **[https://bkumars22.github.io/ZENTRAVIX](https://bkumars22.github.io/
 
 ---
 
+## All Live Project Demos
+
+| Platform | Live URL | GitHub |
+|----------|----------|--------|
+| **ZENTRAVIX** — Enterprise Intelligence | [https://bkumars22.github.io/ZENTRAVIX](https://bkumars22.github.io/ZENTRAVIX) | [bkumars22/ZENTRAVIX](https://github.com/bkumars22/ZENTRAVIX) |
+| **SCIP** — Supply Chain Intelligence | [https://bkumars22.github.io/SupplyChainPlatformProject](https://bkumars22.github.io/SupplyChainPlatformProject) | [bkumars22/SupplyChainPlatformProject](https://github.com/bkumars22/SupplyChainPlatformProject) |
+| **ARIA** — AI Tutor Platform | [https://bkumars22.github.io/ARIA](https://bkumars22.github.io/ARIA) | [bkumars22/ARIA](https://github.com/bkumars22/ARIA) |
+| **QAIP** — QA Intelligent Platform | [https://bkumars22.github.io/QA-Intelligent-Platform](https://bkumars22.github.io/QA-Intelligent-Platform) | [bkumars22/QA-Intelligent-Platform](https://github.com/bkumars22/QA-Intelligent-Platform) |
+
+---
+
 ## SCIP and ARIA Live Data
 
 | Project | Health | QAIP Pass Rate | Tests | Open P0s | Release |
