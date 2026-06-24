@@ -1,9 +1,9 @@
-﻿'use client'
+'use client'
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
 const ROLE_ROUTES: Record<string, string> = {
   CEO: '/dashboard/ceo',
@@ -13,6 +13,33 @@ const ROLE_ROUTES: Record<string, string> = {
   LEAD: '/dashboard/manager',
   SENIOR: '/dashboard/me',
   JUNIOR: '/dashboard/me',
+}
+
+// Demo users — frontend-only demo mode (no backend required)
+const DEMO_USERS: Record<string, { password: string; name: string; title: string; role: string }> = {
+  'ceo@zentravix.io':       { password: 'Zentravix@2026', name: 'Rajesh Kumar',    title: 'Chief Executive Officer',    role: 'CEO' },
+  'cto@zentravix.io':       { password: 'Zentravix@2026', name: 'Priya Sharma',    title: 'Chief Technology Officer',   role: 'EXECUTIVE' },
+  'cfo@zentravix.io':       { password: 'Zentravix@2026', name: 'Arjun Mehta',     title: 'Chief Financial Officer',    role: 'EXECUTIVE' },
+  'vp.eng@zentravix.io':    { password: 'Zentravix@2026', name: 'Kavitha Nair',    title: 'VP Engineering',             role: 'VP' },
+  'manager@zentravix.io':   { password: 'Zentravix@2026', name: 'Suresh Reddy',    title: 'Engineering Manager',        role: 'MANAGER' },
+  'senior.dev@zentravix.io':{ password: 'Zentravix@2026', name: 'Ananya Singh',    title: 'Senior Software Engineer',   role: 'SENIOR' },
+  'junior.qa@zentravix.io': { password: 'Zentravix@2026', name: 'Dev Kumar',       title: 'QA Engineer',                role: 'JUNIOR' },
+}
+
+function makeDemoToken(user: { name: string; title: string; role: string; email: string }) {
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
+  const payload = btoa(
+    JSON.stringify({
+      id: 'demo-' + user.role.toLowerCase(),
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      title: user.title,
+      exp: Math.floor(Date.now() / 1000) + 86400,
+      iat: Math.floor(Date.now() / 1000),
+    })
+  ).replace(/=/g, '')
+  return `${header}.${payload}.demo-sig`
 }
 
 export default function LoginPage() {
@@ -27,27 +54,45 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
-      })
+    const normalizedEmail = email.trim().toLowerCase()
 
-      if (!res.ok) {
-        const data = await res.json()
-        setError(data.error ?? 'Invalid credentials')
+    try {
+      // Try real API first if URL configured
+      if (API_URL) {
+        const res = await fetch(`${API_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: normalizedEmail, password }),
+        })
+
+        if (res.ok) {
+          const { token, user } = await res.json()
+          document.cookie = `ZENTRAVIX_token=${token}; path=/; max-age=86400; SameSite=Lax`
+          router.push(ROLE_ROUTES[user.role] ?? '/dashboard/me')
+          return
+        }
+      }
+
+      // Demo mode — validate against local user list
+      const demo = DEMO_USERS[normalizedEmail]
+      if (demo && demo.password === password) {
+        const token = makeDemoToken({ ...demo, email: normalizedEmail })
+        document.cookie = `ZENTRAVIX_token=${token}; path=/; max-age=86400; SameSite=Lax`
+        router.push(ROLE_ROUTES[demo.role] ?? '/dashboard/me')
         return
       }
 
-      const { token, user } = await res.json()
-
-      document.cookie = `ZENTRAVIX_token=${token}; path=/; max-age=86400; SameSite=Lax`
-
-      const destination = ROLE_ROUTES[user.role] ?? '/dashboard/me'
-      router.push(destination)
+      setError('Invalid email or password.')
     } catch {
-      setError('Connection error. Please check the API server is running.')
+      // Network error — fall through to demo mode
+      const demo = DEMO_USERS[normalizedEmail]
+      if (demo && demo.password === password) {
+        const token = makeDemoToken({ ...demo, email: normalizedEmail })
+        document.cookie = `ZENTRAVIX_token=${token}; path=/; max-age=86400; SameSite=Lax`
+        router.push(ROLE_ROUTES[demo.role] ?? '/dashboard/me')
+        return
+      }
+      setError('Invalid email or password.')
     } finally {
       setLoading(false)
     }
@@ -110,7 +155,7 @@ export default function LoginPage() {
             <p className="text-slate-300 text-xs font-medium mb-2">Demo credentials:</p>
             <p className="text-brand-400 text-xs font-mono">ceo@zentravix.io / Zentravix@2026</p>
             <p className="text-slate-500 text-xs mt-1">
-              Also available: cto, cfo, vp.eng, manager, senior.dev, junior.qa
+              Also: cto, cfo, vp.eng, manager, senior.dev, junior.qa @zentravix.io
             </p>
           </div>
 

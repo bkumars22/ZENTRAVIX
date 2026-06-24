@@ -12,7 +12,7 @@ Author: B KumaraSwamy | swamy.kumar02@gmail.com | Bangalore | 2026
 
 Frontend: **[https://bkumars22.github.io/ZENTRAVIX](https://bkumars22.github.io/ZENTRAVIX)**
 
-API Backend: **https://zentravix-api.up.railway.app** (deploy via Railway — see below)
+> The frontend runs in **demo mode** — no backend required. Sign in with the credentials below and all 4 dashboard layers work immediately.
 
 | Role | Email | Password | Dashboard |
 |------|-------|----------|-----------|
