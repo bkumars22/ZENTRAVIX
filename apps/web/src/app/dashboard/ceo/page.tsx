@@ -9,7 +9,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 interface Project {
   id: string; name: string; healthScore: number; qaipScore: number; qaipPassRate: number
   qaipP0Count: number; openP0s: number; velocity: number; sprintNumber: number
-  releaseDate?: string; status: string
+  releaseDate?: string; status: string; jiraKey?: string
 }
 
 interface AiAlert {
