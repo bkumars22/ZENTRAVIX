@@ -1,4 +1,4 @@
-# AURANEX — Organisation Intelligence Platform
+﻿# ZENTRAVIX — Organisation Intelligence Platform
 
 Production-grade enterprise intelligence platform integrating SCIP (Supply Chain Intelligence), ARIA (AI Tutor), and QAIP (QA Intelligent Platform) into a single unified view — tailored to every organisational role.
 
@@ -6,13 +6,13 @@ Production-grade enterprise intelligence platform integrating SCIP (Supply Chain
 
 | Role | Email | Password | Dashboard |
 |------|-------|----------|-----------|
-| CEO | ceo@auranex.io | Auranex@2026 | CEO Executive View |
-| CTO | cto@auranex.io | Auranex@2026 | VP Engineering View |
-| CFO | cfo@auranex.io | Auranex@2026 | VP Finance View |
-| VP Engineering | vp.eng@auranex.io | Auranex@2026 | VP Dashboard |
-| Engineering Manager | manager@auranex.io | Auranex@2026 | Manager Dashboard |
-| Senior Developer | senior.dev@auranex.io | Auranex@2026 | Individual Dashboard |
-| QA Engineer | junior.qa@auranex.io | Auranex@2026 | Individual Dashboard |
+| CEO | ceo@zentravix.io | Zentravix@2026 | CEO Executive View |
+| CTO | cto@zentravix.io | Zentravix@2026 | VP Engineering View |
+| CFO | cfo@zentravix.io | Zentravix@2026 | VP Finance View |
+| VP Engineering | vp.eng@zentravix.io | Zentravix@2026 | VP Dashboard |
+| Engineering Manager | manager@zentravix.io | Zentravix@2026 | Manager Dashboard |
+| Senior Developer | senior.dev@zentravix.io | Zentravix@2026 | Individual Dashboard |
+| QA Engineer | junior.qa@zentravix.io | Zentravix@2026 | Individual Dashboard |
 
 ## Quick Start
 
@@ -93,7 +93,7 @@ npx prisma studio
 
 ## Role-based Intelligence
 
-AURANEX uses 7 role levels to determine what data each user sees:
+ZENTRAVIX uses 7 role levels to determine what data each user sees:
 
 | Level | Role | View |
 |-------|------|------|
@@ -107,13 +107,13 @@ AURANEX uses 7 role levels to determine what data each user sees:
 
 ## QAIP Integration
 
-AURANEX receives real-time QA results from QAIP (TestMind) via webhook.
+ZENTRAVIX receives real-time QA results from QAIP (TestMind) via webhook.
 
 ### Webhook Setup
 
 Configure your QAIP platform to POST to:
 ```
-POST https://your-auranex-api/api/qaip/webhook
+POST https://your-ZENTRAVIX-api/api/qaip/webhook
 Headers:
   x-qaip-secret: <QAIP_WEBHOOK_SECRET from .env>
 Content-Type: application/json

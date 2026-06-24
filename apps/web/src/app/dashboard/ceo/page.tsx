@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import RagStatus from '@/components/shared/RagStatus'
@@ -60,7 +60,7 @@ export default function CeoDashboard() {
   const [aiLoading, setAiLoading] = useState(false)
 
   function getToken() {
-    return document.cookie.split('; ').find(r => r.startsWith('auranex_token='))?.split('=')[1] ?? ''
+    return document.cookie.split('; ').find(r => r.startsWith('ZENTRAVIX_token='))?.split('=')[1] ?? ''
   }
 
   useEffect(() => {
@@ -309,7 +309,7 @@ export default function CeoDashboard() {
         </div>
 
         <div className="bg-slate-800 border border-slate-700 rounded-xl p-5">
-          <h2 className="text-white font-semibold mb-4">Ask AURANEX</h2>
+          <h2 className="text-white font-semibold mb-4">Ask ZENTRAVIX</h2>
           <div className="space-y-3">
             <textarea
               value={aiQuestion}

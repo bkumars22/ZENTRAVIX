@@ -1,4 +1,4 @@
-name: AURANEX CI/CD
+﻿name: ZENTRAVIX CI/CD
 
 on:
   push:
@@ -18,9 +18,9 @@ jobs:
       postgres:
         image: postgres:15-alpine
         env:
-          POSTGRES_USER: auranex
-          POSTGRES_PASSWORD: auranex
-          POSTGRES_DB: auranex
+          POSTGRES_USER: ZENTRAVIX
+          POSTGRES_PASSWORD: ZENTRAVIX
+          POSTGRES_DB: ZENTRAVIX
         ports:
           - 5432:5432
         options: >-
@@ -41,7 +41,7 @@ jobs:
       - name: Build
         run: cd apps/api && npm run build
         env:
-          DATABASE_URL: postgresql://auranex:auranex@localhost:5432/auranex
+          DATABASE_URL: postgresql://ZENTRAVIX:ZENTRAVIX@localhost:5432/ZENTRAVIX
           JWT_SECRET: test-secret-minimum-32-chars-long
           REDIS_URL: redis://localhost:6379
 

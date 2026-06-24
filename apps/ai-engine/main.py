@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+﻿from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 import os
@@ -8,7 +8,7 @@ load_dotenv()
 
 from agents.intelligence import run_intelligence, ROLE_SUMMARIES
 
-app = FastAPI(title="AURANEX AI Engine", version="1.0.0")
+app = FastAPI(title="ZENTRAVIX AI Engine", version="1.0.0")
 
 VALID_ROLES = {"CEO", "EXECUTIVE", "VP", "MANAGER", "LEAD", "SENIOR", "JUNIOR"}
 
@@ -36,7 +36,7 @@ class SummaryResponse(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "service": "AURANEX AI Engine", "version": "1.0.0"}
+    return {"status": "ok", "service": "ZENTRAVIX AI Engine", "version": "1.0.0"}
 
 
 @app.post("/ai/query", response_model=QueryResponse)

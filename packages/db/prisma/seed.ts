@@ -1,12 +1,12 @@
-import { PrismaClient, RoleLevel, DepartmentType, ProjectStatus, AlertSeverity, DealStage } from '@prisma/client'
+﻿import { PrismaClient, RoleLevel, DepartmentType, ProjectStatus, AlertSeverity, DealStage } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Seeding AURANEX database...')
+  console.log('Seeding ZENTRAVIX database...')
 
-  const PASSWORD_HASH = await bcrypt.hash('Auranex@2026', 12)
+  const PASSWORD_HASH = await bcrypt.hash('Zentravix@2026', 12)
 
   // Departments
   const techDept = await prisma.department.upsert({
@@ -76,11 +76,11 @@ async function main() {
 
   // Users
   const ceo = await prisma.user.upsert({
-    where: { email: 'ceo@auranex.io' },
+    where: { email: 'ceo@zentravix.io' },
     update: {},
     create: {
       id: 'user-ceo',
-      email: 'ceo@auranex.io',
+      email: 'ceo@zentravix.io',
       name: 'Anjali Sharma',
       passwordHash: PASSWORD_HASH,
       role: RoleLevel.CEO,
@@ -90,11 +90,11 @@ async function main() {
   })
 
   const cto = await prisma.user.upsert({
-    where: { email: 'cto@auranex.io' },
+    where: { email: 'cto@zentravix.io' },
     update: {},
     create: {
       id: 'user-cto',
-      email: 'cto@auranex.io',
+      email: 'cto@zentravix.io',
       name: 'Kiran Nair',
       passwordHash: PASSWORD_HASH,
       role: RoleLevel.EXECUTIVE,
@@ -105,11 +105,11 @@ async function main() {
   })
 
   await prisma.user.upsert({
-    where: { email: 'cfo@auranex.io' },
+    where: { email: 'cfo@zentravix.io' },
     update: {},
     create: {
       id: 'user-cfo',
-      email: 'cfo@auranex.io',
+      email: 'cfo@zentravix.io',
       name: 'Pradeep Rao',
       passwordHash: PASSWORD_HASH,
       role: RoleLevel.EXECUTIVE,
@@ -120,11 +120,11 @@ async function main() {
   })
 
   const vpEng = await prisma.user.upsert({
-    where: { email: 'vp.eng@auranex.io' },
+    where: { email: 'vp.eng@zentravix.io' },
     update: {},
     create: {
       id: 'user-vp-eng',
-      email: 'vp.eng@auranex.io',
+      email: 'vp.eng@zentravix.io',
       name: 'Divya Menon',
       passwordHash: PASSWORD_HASH,
       role: RoleLevel.VP,
@@ -135,11 +135,11 @@ async function main() {
   })
 
   const manager = await prisma.user.upsert({
-    where: { email: 'manager@auranex.io' },
+    where: { email: 'manager@zentravix.io' },
     update: {},
     create: {
       id: 'user-manager',
-      email: 'manager@auranex.io',
+      email: 'manager@zentravix.io',
       name: 'Suresh Kumar',
       passwordHash: PASSWORD_HASH,
       role: RoleLevel.MANAGER,
@@ -150,11 +150,11 @@ async function main() {
   })
 
   const seniorDev = await prisma.user.upsert({
-    where: { email: 'senior.dev@auranex.io' },
+    where: { email: 'senior.dev@zentravix.io' },
     update: {},
     create: {
       id: 'user-senior-dev',
-      email: 'senior.dev@auranex.io',
+      email: 'senior.dev@zentravix.io',
       name: 'Meera Iyer',
       passwordHash: PASSWORD_HASH,
       role: RoleLevel.SENIOR,
@@ -165,11 +165,11 @@ async function main() {
   })
 
   const juniorQa = await prisma.user.upsert({
-    where: { email: 'junior.qa@auranex.io' },
+    where: { email: 'junior.qa@zentravix.io' },
     update: {},
     create: {
       id: 'user-junior-qa',
-      email: 'junior.qa@auranex.io',
+      email: 'junior.qa@zentravix.io',
       name: 'Arjun Patel',
       passwordHash: PASSWORD_HASH,
       role: RoleLevel.JUNIOR,
@@ -644,7 +644,7 @@ async function main() {
     },
   })
 
-  console.log('AURANEX seed completed successfully.')
+  console.log('ZENTRAVIX seed completed successfully.')
 }
 
 main()

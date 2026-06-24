@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import RagStatus from '@/components/shared/RagStatus'
@@ -53,7 +53,7 @@ export default function VpDashboard() {
   const [activeTab, setActiveTab] = useState('Overview')
 
   function getToken() {
-    return document.cookie.split('; ').find(r => r.startsWith('auranex_token='))?.split('=')[1] ?? ''
+    return document.cookie.split('; ').find(r => r.startsWith('ZENTRAVIX_token='))?.split('=')[1] ?? ''
   }
 
   useEffect(() => {

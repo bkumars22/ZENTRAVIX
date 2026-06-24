@@ -1,9 +1,9 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Sidebar from '@/components/shared/Sidebar'
 
 function getTokenFromCookies(): string | null {
-  const token = cookies().get('auranex_token')?.value
+  const token = cookies().get('ZENTRAVIX_token')?.value
   if (!token) return null
   try {
     const parts = token.split('.')

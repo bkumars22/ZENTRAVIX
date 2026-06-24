@@ -1,4 +1,4 @@
-import express from 'express'
+﻿import express from 'express'
 import cors from 'cors'
 import http from 'http'
 import { Server as SocketServer } from 'socket.io'
@@ -45,7 +45,7 @@ app.use(cors({
 app.use(express.json())
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'AURANEX API', timestamp: new Date().toISOString() })
+  res.json({ status: 'ok', service: 'ZENTRAVIX API', timestamp: new Date().toISOString() })
 })
 
 app.use('/api/auth', authRoutes)
@@ -67,7 +67,7 @@ async function start() {
   await redisClient.connect()
   const PORT = process.env.PORT ?? 3001
   server.listen(PORT, () => {
-    console.log(`AURANEX API running on port ${PORT}`)
+    console.log(`ZENTRAVIX API running on port ${PORT}`)
   })
 }
 

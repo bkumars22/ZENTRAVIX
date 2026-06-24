@@ -1,5 +1,5 @@
-{
-  "name": "@auranex/db",
+﻿{
+  "name": "@ZENTRAVIX/db",
   "version": "1.0.0",
   "scripts": {
     "db:migrate": "prisma migrate dev",

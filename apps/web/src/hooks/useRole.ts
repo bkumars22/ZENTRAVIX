@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 
@@ -16,7 +16,7 @@ export function useRole() {
   useEffect(() => {
     const token = document.cookie
       .split('; ')
-      .find((row) => row.startsWith('auranex_token='))
+      .find((row) => row.startsWith('ZENTRAVIX_token='))
       ?.split('=')[1]
 
     if (!token) return

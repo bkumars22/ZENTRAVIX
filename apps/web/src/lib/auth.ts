@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers'
+﻿import { cookies } from 'next/headers'
 
 export interface SessionUser {
   id: string
@@ -9,7 +9,7 @@ export interface SessionUser {
 }
 
 export function getSession(): SessionUser | null {
-  const token = cookies().get('auranex_token')?.value
+  const token = cookies().get('ZENTRAVIX_token')?.value
   if (!token) return null
   try {
     const parts = token.split('.')

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express'
+﻿import { Router, Response } from 'express'
 import { AuthenticatedRequest } from '../middleware/auth'
 
 const router = Router()
@@ -43,7 +43,7 @@ router.post('/query', (req: AuthenticatedRequest, res: Response) => {
   const match = KNOWLEDGE_BASE.find((kb) => kb.pattern.test(question))
   const answer = match
     ? match.answer
-    : `Based on current AURANEX data: your question about "${question.slice(0, 60)}" requires analysis beyond the current knowledge base. Please contact your department head or run a full AI analysis via the VP dashboard for detailed insights.`
+    : `Based on current ZENTRAVIX data: your question about "${question.slice(0, 60)}" requires analysis beyond the current knowledge base. Please contact your department head or run a full AI analysis via the VP dashboard for detailed insights.`
 
   return res.json({ answer, source: match ? 'knowledge_base' : 'fallback' })
 })

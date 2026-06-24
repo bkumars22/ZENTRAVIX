@@ -1,4 +1,4 @@
-from typing import TypedDict, List, Dict, Any
+﻿from typing import TypedDict, List, Dict, Any
 import os
 import json
 import redis as redis_lib
@@ -200,7 +200,7 @@ def answer_question(state: AgentState) -> AgentState:
     role = state.get("role", "")
     summary = ROLE_SUMMARIES.get(role, "")
     state["answer"] = (
-        f"Based on current AURANEX data: your question about '{state.get('question', '')[:60]}' "
+        f"Based on current ZENTRAVIX data: your question about '{state.get('question', '')[:60]}' "
         "requires analysis beyond the current knowledge base. "
         + (f"Context for your role: {summary}" if summary else "")
     )
@@ -210,7 +210,7 @@ def answer_question(state: AgentState) -> AgentState:
 def update_cache(state: AgentState) -> AgentState:
     try:
         r = redis_lib.from_url(REDIS_URL, decode_responses=True, socket_connect_timeout=2)
-        cache_key = state.get("cache_key") or f"auranex:summary:{state.get('role', 'all')}"
+        cache_key = state.get("cache_key") or f"ZENTRAVIX:summary:{state.get('role', 'all')}"
         r.setex(cache_key, 300, json.dumps({"summaries": state["summaries"], "alerts": state["alerts"]}))
     except Exception:
         pass
@@ -252,7 +252,7 @@ def run_intelligence(role: str, question: str = "") -> AgentState:
         "alerts": [],
         "summaries": {},
         "answer": "",
-        "cache_key": f"auranex:intelligence:{role}",
+        "cache_key": f"ZENTRAVIX:intelligence:{role}",
     }
 
     if intelligence_graph:

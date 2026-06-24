@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import RagStatus from '@/components/shared/RagStatus'
@@ -56,7 +56,7 @@ export default function ManagerDashboard() {
   const [showStandup, setShowStandup] = useState(false)
 
   function getToken() {
-    return document.cookie.split('; ').find(r => r.startsWith('auranex_token='))?.split('=')[1] ?? ''
+    return document.cookie.split('; ').find(r => r.startsWith('ZENTRAVIX_token='))?.split('=')[1] ?? ''
   }
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export default function ManagerDashboard() {
   const reviewTasks = (data?.tasks ?? []).filter(t => t.status === 'REVIEW')
   const doneTasks = (data?.tasks ?? []).filter(t => t.status === 'DONE')
 
-  const standupReport = `AURANEX Engineering Team — Daily Standup — ${new Date().toLocaleDateString('en-IN')}
+  const standupReport = `ZENTRAVIX Engineering Team — Daily Standup — ${new Date().toLocaleDateString('en-IN')}
 
 Completed Yesterday:
 - Docker Compose health checks (Rahul Shah)

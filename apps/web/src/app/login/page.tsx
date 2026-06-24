@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -42,7 +42,7 @@ export default function LoginPage() {
 
       const { token, user } = await res.json()
 
-      document.cookie = `auranex_token=${token}; path=/; max-age=86400; SameSite=Lax`
+      document.cookie = `ZENTRAVIX_token=${token}; path=/; max-age=86400; SameSite=Lax`
 
       const destination = ROLE_ROUTES[user.role] ?? '/dashboard/me'
       router.push(destination)
@@ -57,7 +57,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-slate-900 flex">
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 flex-col justify-between p-12">
         <div>
-          <div className="text-3xl font-bold text-white tracking-tight">AURANEX</div>
+          <div className="text-3xl font-bold text-white tracking-tight">ZENTRAVIX</div>
           <div className="text-brand-200 text-sm mt-1">Organisation Intelligence Platform</div>
         </div>
 
@@ -95,12 +95,12 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden">
-            <div className="text-2xl font-bold text-white">AURANEX</div>
+            <div className="text-2xl font-bold text-white">ZENTRAVIX</div>
             <div className="text-slate-400 text-sm">Organisation Intelligence Platform</div>
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-white">Sign in to AURANEX</h1>
+            <h1 className="text-2xl font-bold text-white">Sign in to ZENTRAVIX</h1>
             <p className="mt-2 text-slate-400 text-sm">
               Access your role-specific intelligence dashboard
             </p>
@@ -108,7 +108,7 @@ export default function LoginPage() {
 
           <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
             <p className="text-slate-300 text-xs font-medium mb-2">Demo credentials:</p>
-            <p className="text-brand-400 text-xs font-mono">ceo@auranex.io / Auranex@2026</p>
+            <p className="text-brand-400 text-xs font-mono">ceo@zentravix.io / Zentravix@2026</p>
             <p className="text-slate-500 text-xs mt-1">
               Also available: cto, cfo, vp.eng, manager, senior.dev, junior.qa
             </p>
@@ -129,7 +129,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@auranex.io"
+                placeholder="you@zentravix.io"
                 required
                 className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-sm transition-colors"
               />
@@ -166,7 +166,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-slate-600 text-xs text-center">
-            AURANEX — Organisation Intelligence Platform — v1.0.0
+            ZENTRAVIX — Organisation Intelligence Platform — v1.0.0
           </p>
         </div>
       </div>

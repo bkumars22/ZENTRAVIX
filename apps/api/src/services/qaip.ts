@@ -1,4 +1,4 @@
-import axios from 'axios'
+﻿import axios from 'axios'
 
 const QAIP_BASE = process.env.QAIP_API_URL ?? 'https://testmind-production.up.railway.app'
 
@@ -16,7 +16,7 @@ export async function triggerQaipRun(projectKey: string) {
     const res = await axios.post(
       `${QAIP_BASE}/api/runs/trigger`,
       { project: projectKey, webhook: `${process.env.API_URL ?? 'http://localhost:3001'}/api/qaip/webhook` },
-      { headers: { 'x-qaip-secret': process.env.QAIP_WEBHOOK_SECRET ?? 'auranex-qaip-2026' }, timeout: 5000 }
+      { headers: { 'x-qaip-secret': process.env.QAIP_WEBHOOK_SECRET ?? 'ZENTRAVIX-qaip-2026' }, timeout: 5000 }
     )
     return res.data
   } catch {

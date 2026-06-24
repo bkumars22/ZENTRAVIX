@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -43,14 +43,14 @@ export default function Sidebar() {
   })
 
   function handleLogout() {
-    document.cookie = 'auranex_token=; path=/; max-age=0'
+    document.cookie = 'ZENTRAVIX_token=; path=/; max-age=0'
     router.push('/login')
   }
 
   return (
     <aside className="w-60 bg-slate-900 border-r border-slate-800 flex flex-col h-screen sticky top-0">
       <div className="p-5 border-b border-slate-800">
-        <div className="text-xl font-bold text-white tracking-tight">AURANEX</div>
+        <div className="text-xl font-bold text-white tracking-tight">ZENTRAVIX</div>
         <div className="text-slate-500 text-xs mt-0.5">Organisation Intelligence</div>
       </div>
 

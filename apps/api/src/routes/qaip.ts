@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express'
+﻿import { Router, Request, Response } from 'express'
 import { prisma, io } from '../index'
 import { AlertSeverity } from '@prisma/client'
 
@@ -17,7 +17,7 @@ interface QaipWebhookBody {
 
 router.post('/webhook', async (req: Request, res: Response) => {
   const secret = req.headers['x-qaip-secret']
-  if (secret !== (process.env.QAIP_WEBHOOK_SECRET ?? 'auranex-qaip-2026')) {
+  if (secret !== (process.env.QAIP_WEBHOOK_SECRET ?? 'ZENTRAVIX-qaip-2026')) {
     return res.status(401).json({ error: 'Invalid webhook secret' })
   }
 

@@ -1,5 +1,5 @@
-{
-  "name": "@auranex/api",
+﻿{
+  "name": "@ZENTRAVIX/api",
   "version": "1.0.0",
   "scripts": {
     "dev": "ts-node-dev --respawn src/index.ts",

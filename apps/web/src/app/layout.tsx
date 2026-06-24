@@ -1,8 +1,8 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'AURANEX — Organisation Intelligence Platform',
+  title: 'ZENTRAVIX — Organisation Intelligence Platform',
   description: 'Real-time organisation intelligence for every role',
 }
 
