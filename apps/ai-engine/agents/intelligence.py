@@ -190,19 +190,64 @@ def generate_summaries(state: AgentState) -> AgentState:
 
 
 def answer_question(state: AgentState) -> AgentState:
-    question = (state.get("question") or "").lower()
+    question = state.get("question") or ""
+    role = state.get("role", "")
+    role_summary = ROLE_SUMMARIES.get(role, "")
 
+    # ── 1. Try pgvector semantic search ──────────────────────────────────────
+    rag_context = ""
+    try:
+        from rag.embedder import embed
+        from rag.vector_store import search_knowledge, ensure_schema
+
+        ensure_schema()
+        q_embed = embed(question)
+        hits = search_knowledge(query_embedding=q_embed, top_k=5, min_similarity=0.2)
+        if hits:
+            rag_context = "\n\n".join(h["content"] for h in hits)
+    except Exception:
+        pass  # RAG unavailable — fall through to keyword matching
+
+    # ── 2. If RAG gave context, use Groq/Claude to synthesise the answer ─────
+    if rag_context:
+        try:
+            from groq import Groq
+            groq_client = Groq(api_key=os.getenv("GROQ_API_KEY", ""))
+            system_prompt = (
+                "You are ZENTRAVIX, an organisation intelligence assistant. "
+                "Answer the user's question ONLY using the provided context data. "
+                "Be concise and factual. If the context does not cover the question, say so."
+            )
+            user_prompt = (
+                f"Role: {role}\n\n"
+                f"Organisation data:\n{rag_context}\n\n"
+                f"Question: {question}"
+            )
+            resp = groq_client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=0.1,
+                max_tokens=512,
+            )
+            state["answer"] = resp.choices[0].message.content.strip()
+            return state
+        except Exception:
+            pass  # Groq unavailable — fall through
+
+    # ── 3. Keyword-match fallback (keeps existing behaviour) ─────────────────
+    question_lower = question.lower()
     for kb in KNOWLEDGE_BASE:
-        if any(kw in question for kw in kb["keywords"]):
+        if any(kw in question_lower for kw in kb["keywords"]):
             state["answer"] = kb["answer"]
             return state
 
-    role = state.get("role", "")
-    summary = ROLE_SUMMARIES.get(role, "")
     state["answer"] = (
-        f"Based on current ZENTRAVIX data: your question about '{state.get('question', '')[:60]}' "
+        f"Based on current ZENTRAVIX data: your question about '{question[:60]}' "
         "requires analysis beyond the current knowledge base. "
-        + (f"Context for your role: {summary}" if summary else "")
+        + (f"Context for your role: {role_summary}" if role_summary else "")
     )
     return state
 

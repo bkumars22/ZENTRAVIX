@@ -1,14 +1,41 @@
 ﻿from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Any
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from agents.intelligence import run_intelligence, ROLE_SUMMARIES
+from agents.intelligence import run_intelligence, ROLE_SUMMARIES, SEEDED_DATA
+
+logger = logging.getLogger("zentravix.main")
 
 app = FastAPI(title="ZENTRAVIX AI Engine", version="1.0.0")
+
+
+def _do_seed():
+    """Seed/refresh org knowledge in pgvector."""
+    try:
+        from rag.org_knowledge import seed_from_data
+        count = seed_from_data(SEEDED_DATA)
+        logger.info("ZENTRAVIX: seeded/refreshed %d knowledge chunks", count)
+    except Exception as exc:
+        logger.warning("ZENTRAVIX knowledge seed failed (non-fatal): %s", exc)
+
+
+@app.on_event("startup")
+def _startup():
+    """Seed on startup and schedule periodic refresh every 15 minutes."""
+    _do_seed()
+    try:
+        from apscheduler.schedulers.background import BackgroundScheduler
+        sched = BackgroundScheduler()
+        sched.add_job(_do_seed, "interval", minutes=15, id="zentravix_seed")
+        sched.start()
+        logger.info("ZENTRAVIX: scheduler started — re-indexing every 15 minutes")
+    except ImportError:
+        logger.warning("apscheduler not installed — auto re-indexing disabled")
 
 VALID_ROLES = {"CEO", "EXECUTIVE", "VP", "MANAGER", "LEAD", "SENIOR", "JUNIOR"}
 
@@ -99,6 +126,91 @@ def get_summary(role: str):
         summary=summary,
         generatedAt=datetime.now(timezone.utc).isoformat(),
     )
+
+
+# ---------------------------------------------------------------------------
+# RAG endpoints
+# ---------------------------------------------------------------------------
+
+class RagIngestRequest(BaseModel):
+    domain: str
+    entity_id: str
+    content: str
+    metadata: dict[str, Any] = {}
+
+
+class RagQueryRequest(BaseModel):
+    question: str
+    domain: Optional[str] = None
+    top_k: int = 6
+
+
+class ProjectUpdateRequest(BaseModel):
+    project_key: str
+    project_name: str
+    health_score: int
+    qaip_pass_rate: float
+    open_p0s: int
+    velocity: int
+    sprint_number: int
+    release_date: str
+
+
+@app.post("/rag/ingest")
+def rag_ingest(payload: RagIngestRequest):
+    """Ingest an org knowledge document directly."""
+    try:
+        from rag.embedder import embed
+        from rag.vector_store import upsert_knowledge, ensure_schema
+        ensure_schema()
+        embedding = embed(payload.content)
+        doc_id = upsert_knowledge(
+            content=payload.content,
+            embedding=embedding,
+            domain=payload.domain,
+            entity_id=payload.entity_id,
+            metadata=payload.metadata,
+        )
+        return {"status": "ok", "id": doc_id}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/rag/query")
+def rag_query(payload: RagQueryRequest):
+    """Natural-language search over ZENTRAVIX org knowledge."""
+    try:
+        from rag.embedder import embed
+        from rag.vector_store import search_knowledge
+        q_embed = embed(payload.question)
+        results = search_knowledge(
+            query_embedding=q_embed,
+            top_k=payload.top_k,
+            domain=payload.domain,
+        )
+        return {"results": results, "count": len(results)}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/rag/project-update")
+def rag_project_update(payload: ProjectUpdateRequest):
+    """Update a single project's knowledge entry (called by QAIP webhook)."""
+    try:
+        from rag.org_knowledge import ingest_project_update
+        ok = ingest_project_update(
+            project_key=payload.project_key,
+            project_name=payload.project_name,
+            health_score=payload.health_score,
+            qaip_pass_rate=payload.qaip_pass_rate,
+            open_p0s=payload.open_p0s,
+            velocity=payload.velocity,
+            sprint_number=payload.sprint_number,
+            release_date=payload.release_date,
+        )
+        return {"status": "ok" if ok else "failed"}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 if __name__ == "__main__":
