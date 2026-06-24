@@ -1,4 +1,4 @@
-﻿import { Router, Request, Response } from 'express'
+import { Router, Request, Response } from 'express'
 import { prisma, io } from '../index'
 import { AlertSeverity } from '@prisma/client'
 

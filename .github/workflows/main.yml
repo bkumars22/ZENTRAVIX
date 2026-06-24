@@ -1,4 +1,4 @@
-﻿name: ZENTRAVIX CI/CD
+name: ZENTRAVIX CI/CD
 
 on:
   push:

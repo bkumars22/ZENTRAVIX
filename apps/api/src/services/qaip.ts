@@ -1,4 +1,4 @@
-﻿import axios from 'axios'
+import axios from 'axios'
 
 const QAIP_BASE = process.env.QAIP_API_URL ?? 'https://testmind-production.up.railway.app'
 

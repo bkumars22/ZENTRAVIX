@@ -1,4 +1,4 @@
-﻿import { PrismaClient, RoleLevel, DepartmentType, ProjectStatus, AlertSeverity, DealStage } from '@prisma/client'
+import { PrismaClient, RoleLevel, DepartmentType, ProjectStatus, AlertSeverity, DealStage } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
