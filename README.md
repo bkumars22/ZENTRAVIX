@@ -104,25 +104,25 @@ Role-specific framing (CEO gets executive summary, Manager gets blockers)
 
 ```
                          ZENTRAVIX
-                    ┌────────────────────────────────────────┐
-                    │                                        │
-   Browser  ──────► │  Next.js 14 (GitHub Pages)            │
-                    │  CEO / VP / Manager / Individual       │
-                    │  OrgAIAssistant component              │
-                    └───────────────┬────────────────────────┘
-                                    │ HTTPS REST + WebSocket
-                    ┌───────────────▼────────────────────────┐
-                    │  Node.js + Express API (Railway)       │
-                    │  Socket.io real-time push              │
-                    └──────┬─────────────┬────────────────────┘
-                           │             │
-              ┌────────────▼──┐   ┌──────▼──────────────────────┐
-              │  PostgreSQL   │   │  Python FastAPI AI Engine    │
-              │  (Railway)    │   │  LangGraph 6-node agent      │
-              │  pgvector     │   │  RAG: pgvector + Groq/Claude │
-              └───────────────┘   └──────────────────────────────┘
-                                           │
-                   ┌───────────────────────┤
+                    
+                                                            
+   Browser     Next.js 14 (GitHub Pages)            
+                      CEO / VP / Manager / Individual       
+                      OrgAIAssistant component              
+                    
+                                     HTTPS REST + WebSocket
+                    
+                      Node.js + Express API (Railway)       
+                      Socket.io real-time push              
+                    
+                                        
+                 
+                PostgreSQL        Python FastAPI AI Engine    
+                (Railway)         LangGraph 6-node agent      
+                pgvector          RAG: pgvector + Groq/Claude 
+                 
+                                           
+                   
             QAIP webhooks        Re-index every 15 min
             SCIP supplier data   (apscheduler)
             ARIA student data
@@ -132,15 +132,15 @@ Role-specific framing (CEO gets executive summary, Manager gets blockers)
 
 ```
 collect_data        ← SEEDED_DATA + live QAIP webhook updates
-     │
+     
 detect_anomalies    ← P0 checks, velocity thresholds, revenue alerts
-     │
+     
 generate_alerts     ← CRITICAL/WARNING per anomaly
-     │
+     
 generate_summaries  ← role-based summaries (CEO/VP/MANAGER/JUNIOR)
-     │
+     
 answer_question     ← NEW: pgvector RAG → Claude synthesis
-     │
+     
 update_cache        ← Redis cache 5-min TTL
 ```
 
