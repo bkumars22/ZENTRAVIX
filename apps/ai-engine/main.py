@@ -1,4 +1,5 @@
 ﻿from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, Any
 import os
@@ -8,6 +9,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from agents.intelligence import run_intelligence, ROLE_SUMMARIES, SEEDED_DATA
+from model_router import get_router, MODEL_REGISTRY, TASK_TIER_MAP, ModelTier
+from cost_tracker import record as track_cost, dashboard as cost_dashboard
+
+_router = get_router("ZENTRAVIX")
 
 logger = logging.getLogger("zentravix.main")
 
@@ -211,6 +216,118 @@ def rag_project_update(payload: ProjectUpdateRequest):
         return {"status": "ok" if ok else "failed"}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ---------------------------------------------------------------------------
+# Level 4 — Cross-Project Cost Dashboard (platform hub, GAP 2 + GAP 6)
+# ---------------------------------------------------------------------------
+
+@app.get("/platform/cost-dashboard")
+def platform_cost_dashboard():
+    """
+    Cross-project cost dashboard — shows AI spend for QAIP, SCIP, ARIA, ZENTRAVIX.
+    This is the single pane of glass for AI cost visibility across the platform.
+    """
+    all_data = cost_dashboard()   # all projects
+    return {
+        "platform":    "ZENTRAVIX",
+        "description": "Cross-project AI cost dashboard — all 4 products",
+        **all_data,
+    }
+
+
+@app.get("/platform/model-registry")
+def platform_model_registry():
+    """
+    Shared model registry used by all projects on the ZENTRAVIX platform.
+    Defines routing rules, costs, and capabilities for every AI model.
+    """
+    return {
+        "platform": "ZENTRAVIX",
+        "models": {
+            tier.value: {
+                "model_id": spec.model_id,
+                "provider": spec.provider,
+                "cost_per_1m_input":  spec.cost_per_1m_input,
+                "cost_per_1m_output": spec.cost_per_1m_output,
+                "max_tokens": spec.max_tokens,
+                "avg_latency_ms": spec.avg_latency_ms,
+            }
+            for tier, spec in MODEL_REGISTRY.items()
+        },
+        "task_routing": {task: tier.value for task, tier in TASK_TIER_MAP.items()},
+        "projects_using": ["QAIP", "SCIP", "ARIA", "ZENTRAVIX"],
+    }
+
+
+@app.get("/platform/projects")
+def platform_projects():
+    """
+    ZENTRAVIX platform hub — lists all connected AI products with purpose and status.
+    """
+    return {
+        "platform": "ZENTRAVIX",
+        "tagline":  "Multi-product AI platform orchestrating QA, Supply Chain, Education, and Org Intelligence",
+        "projects": [
+            {
+                "key":     "QAIP",
+                "name":    "QA Intelligent Platform",
+                "purpose": "AI-driven software quality — automated test generation, defect detection, risk scoring",
+                "advantages": [
+                    "84% cost reduction via ModelRouter vs always-Claude-Opus",
+                    "LangGraph multi-agent pipeline (Risk → Coverage → TestGen → Defect → Explain → Dispatch)",
+                    "Live GitHub PR analysis in < 90 seconds",
+                    "IsolationForest ML anomaly detection on commit history",
+                ],
+                "status": "LIVE",
+                "url":    "https://bkumars22.github.io/TestMind",
+                "level":  "AI Engineer → AI Architect (Level 3→4)",
+            },
+            {
+                "key":     "SCIP",
+                "name":    "Supply Chain Intelligence Platform",
+                "purpose": "End-to-end B2B procurement automation — PO lifecycle, supplier risk, invoice matching, demand forecasting",
+                "advantages": [
+                    "50+ domain modules (PO, invoice, inventory, logistics, compliance, contract, BOM)",
+                    "AI-powered supplier risk scoring and demand forecasting",
+                    "IsolationForest anomaly detection on procurement patterns",
+                    "Full procure-to-pay automation from requisition to payment",
+                ],
+                "status": "LIVE",
+                "url":    "https://bkumars22.github.io/scweb",
+                "level":  "AI Engineer (Level 3)",
+            },
+            {
+                "key":     "ARIA",
+                "name":    "Adaptive Real-time Intelligent Assistant (Education)",
+                "purpose": "AI teacher for students aged 4–18 — Socratic teaching, homework solving, 25-language support, vision-based document explanation",
+                "advantages": [
+                    "Socratic engine never gives direct answers — forces student thinking",
+                    "Adaptive difficulty — adjusts automatically at score thresholds (35% / 80%)",
+                    "25-language support including 10 Indian regional languages",
+                    "Vision model reads photos of homework/textbook pages",
+                    "Parent reports generated in parent's native language",
+                ],
+                "status": "LIVE",
+                "url":    "https://bkumars22.github.io/ARIA",
+                "level":  "AI Engineer → AI Architect (Level 3→4)",
+            },
+            {
+                "key":     "ZENTRAVIX",
+                "name":    "ZENTRAVIX Organisation Intelligence Platform",
+                "purpose": "CEO/VP/Manager/Individual role-based dashboards fed by real-time AI — connects all 3 products into one executive intelligence layer",
+                "advantages": [
+                    "Role-aware AI — CEO sees strategic risk, VP sees delivery metrics, Manager sees team health",
+                    "Pulls live data from QAIP (test quality), SCIP (supply risk), ARIA (learning outcomes)",
+                    "pgvector RAG over org knowledge base — answers natural-language org questions",
+                    "Cross-project cost dashboard — single view of AI spend across all products",
+                    "Shared ModelRouter — platform-level model routing and cost optimisation",
+                ],
+                "status": "BUILDING",
+                "level":  "AI Architect → AI Principal (Level 4→5)",
+            },
+        ],
+    }
 
 
 if __name__ == "__main__":
