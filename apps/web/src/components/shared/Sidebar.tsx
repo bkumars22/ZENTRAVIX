@@ -11,11 +11,12 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'CEO Dashboard', href: '/dashboard/ceo', minLevel: 7 },
-  { label: 'VP Overview', href: '/dashboard/vp', minLevel: 6 },
-  { label: 'Manager Dashboard', href: '/dashboard/manager', minLevel: 4 },
-  { label: 'My Dashboard', href: '/dashboard/me', minLevel: 1 },
-  { label: 'All Projects', href: '/dashboard/projects', minLevel: 5 },
+  { label: 'CEO Dashboard',   href: '/dashboard/ceo',         minLevel: 7 },
+  { label: 'VP Overview',     href: '/dashboard/vp',          minLevel: 6 },
+  { label: 'Manager Dashboard', href: '/dashboard/manager',   minLevel: 4 },
+  { label: 'My Dashboard',   href: '/dashboard/me',          minLevel: 1 },
+  { label: 'All Projects',   href: '/dashboard/projects',    minLevel: 5 },
+  { label: 'Departments',    href: '/dashboard/departments', minLevel: 1 },
 ]
 
 const ROLE_COLORS: Record<string, string> = {
