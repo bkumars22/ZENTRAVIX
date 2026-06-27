@@ -18,10 +18,9 @@ const CI_COLOR: Record<string, string> = {
 const PROJECTS = ['QAIP', 'SCIP', 'ARIA'] as const
 
 export default function DevOpsDashboard({ role }: Props) {
-  const { snapshot, loading, error, criticalAlert } = useDeptSnapshot('devops', role)
+  const { snapshot, loading, isDemo, criticalAlert } = useDeptSnapshot('devops', role)
 
   if (loading) return <div className="text-slate-400 text-sm p-8 text-center animate-pulse">Loading DevOps metrics…</div>
-  if (error)   return <div className="text-red-400 text-sm p-8 bg-red-900/20 rounded-xl">Error: {error}</div>
 
   const projects   = (snapshot?.analysed as any)?.projects ?? {}
   const anomalies  = (snapshot?.anomalies as any[]) ?? []
@@ -36,6 +35,13 @@ export default function DevOpsDashboard({ role }: Props) {
 
   return (
     <div className="space-y-8">
+
+      {isDemo && (
+        <div className="text-xs text-slate-400 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-slate-500" />
+          Demo data — backend offline. Connect Railway API for live metrics.
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between">
