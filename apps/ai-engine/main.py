@@ -29,16 +29,31 @@ def _do_seed():
         logger.warning("ZENTRAVIX knowledge seed failed (non-fatal): %s", exc)
 
 
+DEPARTMENTS = ["devops", "security", "finance", "product"]
+
+
+def _run_all_departments():
+    """Run all 4 department LangGraph pipelines sequentially."""
+    from departments.langgraph_pipeline import run_department
+    for dept in DEPARTMENTS:
+        try:
+            run_department(dept)
+        except Exception as exc:
+            logger.error("Department pipeline error [%s]: %s", dept, exc)
+
+
 @app.on_event("startup")
 def _startup():
-    """Seed on startup and schedule periodic refresh every 15 minutes."""
+    """Seed RAG, start 15-min department refresh scheduler."""
     _do_seed()
     try:
         from apscheduler.schedulers.background import BackgroundScheduler
         sched = BackgroundScheduler()
-        sched.add_job(_do_seed, "interval", minutes=15, id="zentravix_seed")
+        sched.add_job(_do_seed,              "interval", minutes=15, id="zentravix_seed")
+        sched.add_job(_run_all_departments,  "interval", minutes=15, id="zentravix_depts",
+                      coalesce=True, max_instances=1)
         sched.start()
-        logger.info("ZENTRAVIX: scheduler started — re-indexing every 15 minutes")
+        logger.info("ZENTRAVIX: scheduler started — RAG seed + dept refresh every 15 min")
     except ImportError:
         logger.warning("apscheduler not installed — auto re-indexing disabled")
 
@@ -328,6 +343,87 @@ def platform_projects():
             },
         ],
     }
+
+
+# ---------------------------------------------------------------------------
+# Department Intelligence Endpoints
+# ---------------------------------------------------------------------------
+
+class DeptRefreshResponse(BaseModel):
+    department: str
+    status:     str
+    snapshot_id: str
+    critical_count: int
+    anomaly_count:  int
+
+
+@app.get("/dept/{department}/snapshot")
+def dept_snapshot(department: str):
+    """Return the latest cached snapshot for a department (Redis → DB fallback)."""
+    if department not in DEPARTMENTS:
+        raise HTTPException(status_code=400, detail=f"Unknown department: {department}. Valid: {DEPARTMENTS}")
+    from departments.langgraph_pipeline import get_cached_snapshot
+    cached = get_cached_snapshot(department)
+    if cached:
+        return {"source": "cache", **cached}
+    raise HTTPException(status_code=404, detail=f"No snapshot available for {department} — trigger /dept/{department}/refresh first")
+
+
+@app.post("/dept/{department}/refresh", response_model=DeptRefreshResponse)
+def dept_refresh(department: str):
+    """Trigger an immediate LangGraph pipeline run for the given department."""
+    if department not in DEPARTMENTS:
+        raise HTTPException(status_code=400, detail=f"Unknown department: {department}. Valid: {DEPARTMENTS}")
+    from departments.langgraph_pipeline import run_department
+    result = run_department(department)
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    return DeptRefreshResponse(
+        department=department,
+        status="refreshed",
+        snapshot_id=result.get("snapshot_id", ""),
+        critical_count=result.get("critical_count", 0),
+        anomaly_count=len(result.get("anomalies", [])),
+    )
+
+
+@app.post("/dept/refresh-all")
+def dept_refresh_all():
+    """Trigger all 4 department pipelines immediately (blocking)."""
+    results = {}
+    for dept in DEPARTMENTS:
+        from departments.langgraph_pipeline import run_department
+        r = run_department(dept)
+        results[dept] = {
+            "critical_count": r.get("critical_count", 0),
+            "anomaly_count":  len(r.get("anomalies", [])),
+            "error":          r.get("error"),
+        }
+    return {"status": "completed", "departments": results}
+
+
+@app.get("/dept/{department}/alerts")
+def dept_alerts(department: str, severity: str = "P0"):
+    """Return unresolved alerts for a department at or above given severity."""
+    import psycopg2, psycopg2.extras
+    severities = {"P0": ["P0"], "P1": ["P0", "P1"], "P2": ["P0", "P1", "P2"]}
+    allowed = severities.get(severity.upper(), ["P0"])
+    try:
+        conn = psycopg2.connect(os.getenv("DATABASE_URL", ""))
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT * FROM dept_alerts
+                WHERE department = %s AND severity = ANY(%s) AND resolved_at IS NULL
+                ORDER BY created_at DESC LIMIT 50
+                """,
+                (department, allowed),
+            )
+            rows = [dict(r) for r in cur.fetchall()]
+        conn.close()
+        return {"department": department, "severity_filter": severity, "alerts": rows, "count": len(rows)}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 if __name__ == "__main__":
