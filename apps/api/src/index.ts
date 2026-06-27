@@ -13,7 +13,9 @@ import individualRoutes from './routes/individual'
 import projectRoutes from './routes/projects'
 import qaipRoutes from './routes/qaip'
 import aiRoutes from './routes/ai'
+import departmentsRoutes from './routes/departments'
 import { requireAuth } from './middleware/auth'
+import { initSocket, startRedisBridge, registerSocketRooms } from './services/socket'
 
 export const prisma = new PrismaClient()
 
@@ -56,15 +58,13 @@ app.use('/api/me', requireAuth, individualRoutes)
 app.use('/api/projects', requireAuth, projectRoutes)
 app.use('/api/qaip', qaipRoutes)
 app.use('/api/ai', requireAuth, aiRoutes)
-
-io.on('connection', (socket) => {
-  const role = socket.handshake.query.role as string
-  if (role) socket.join(`role:${role}`)
-  socket.on('disconnect', () => {})
-})
+app.use('/api/dept', departmentsRoutes)
 
 async function start() {
   await redisClient.connect()
+  initSocket(io)
+  registerSocketRooms()
+  startRedisBridge().catch((err) => console.error('[Redis bridge] failed to start:', err))
   const PORT = process.env.PORT ?? 3001
   server.listen(PORT, () => {
     console.log(`ZENTRAVIX API running on port ${PORT}`)

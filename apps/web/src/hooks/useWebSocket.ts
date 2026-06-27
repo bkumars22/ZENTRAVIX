@@ -3,7 +3,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { io, Socket } from 'socket.io-client'
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'http://localhost:3001'
+const WS_URL  = process.env.NEXT_PUBLIC_WS_URL  ?? 'http://localhost:3001'
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+
+function getToken() {
+  return document.cookie.split('; ').find((r) => r.startsWith('ZENTRAVIX_token='))?.split('=')[1] ?? ''
+}
 
 export type DeptEvent = {
   event: string
@@ -69,7 +74,9 @@ export function useDeptSnapshot(dept: string, role: RoleLevel) {
   // Fetch initial snapshot from REST API
   useEffect(() => {
     setLoading(true)
-    fetch(`/api/dept/${dept}/snapshot`)
+    fetch(`${API_URL}/api/dept/${dept}/snapshot`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    })
       .then((r) => (r.ok ? r.json() : Promise.reject(r.statusText)))
       .then((d) => { setSnapshot(d); setLoading(false) })
       .catch((e) => { setError(String(e)); setLoading(false) })

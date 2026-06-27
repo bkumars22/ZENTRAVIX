@@ -46,15 +46,11 @@ export default function DepartmentLayout({ role: initialRole, children }: Depart
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
 
-      {/* Top bar */}
+      {/* Top bar — role selector only (sidebar already shows ZENTRAVIX brand) */}
       <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-slate-700 px-6 py-3">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <span className="text-sm font-semibold text-slate-300">Department Intelligence</span>
           <div className="flex items-center gap-3">
-            <span className="text-lg font-bold text-white">ZENTRAVIX</span>
-            <span className="text-slate-500 text-sm">Department Intelligence</span>
-          </div>
-          <div className="flex items-center gap-3">
-            {/* Role selector */}
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as RoleLevel)}

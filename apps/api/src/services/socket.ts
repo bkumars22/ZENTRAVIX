@@ -1,12 +1,18 @@
-import { io } from '../index'
+import type { Server as SocketServer } from 'socket.io'
 import { createClient } from 'redis'
 
+let _io: SocketServer
+
+export function initSocket(io: SocketServer) {
+  _io = io
+}
+
 export function emitToRole(role: string, event: string, data: unknown) {
-  io.to(`role:${role}`).emit(event, data)
+  _io?.to(`role:${role}`).emit(event, data)
 }
 
 export function emitToAll(event: string, data: unknown) {
-  io.emit(event, data)
+  _io?.emit(event, data)
 }
 
 // ---------------------------------------------------------------------------
@@ -43,10 +49,10 @@ export async function startRedisBridge(): Promise<void> {
           emitToRole('CEO',     event, data)
           emitToRole('MANAGER', event, data)
           emitToRole('LEAD',    event, data)
-          io.emit(event, data)   // also broadcast to all connected clients
+          _io.emit(event, data)   // also broadcast to all connected clients
         } else {
           // Regular snapshots go to all connected clients
-          io.emit(event, data)
+          _io.emit(event, data)
         }
       } catch (err) {
         console.error('[Redis bridge] parse error on', channel, err)
@@ -59,7 +65,7 @@ export async function startRedisBridge(): Promise<void> {
 
 // Register Socket.io room join on connection
 export function registerSocketRooms(): void {
-  io.on('connection', (socket) => {
+  _io.on('connection', (socket) => {
     const role = (socket.handshake.query.role as string)?.toUpperCase()
     if (role) {
       socket.join(`role:${role}`)
