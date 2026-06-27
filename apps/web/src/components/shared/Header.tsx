@@ -1,11 +1,11 @@
 'use client'
 
-import { useWebSocket } from '@/hooks/useWebSocket'
+import { useWebSocket, type RoleLevel } from '@/hooks/useWebSocket'
 import { useRole } from '@/hooks/useRole'
 
 export default function Header({ title }: { title: string }) {
   const { user } = useRole()
-  const { connected } = useWebSocket(user?.role ?? '')
+  const { connected } = useWebSocket((user?.role ?? 'JUNIOR') as RoleLevel)
 
   return (
     <header className="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 sticky top-0 z-10">
