@@ -4,7 +4,7 @@ import { emitToRole, emitToAll } from '../services/socket'
 const router = Router()
 
 const AI_ENGINE = process.env.AI_ENGINE_URL ?? 'http://localhost:8001'
-const DEPARTMENTS = ['devops', 'security', 'finance', 'product'] as const
+const DEPARTMENTS = ['devops', 'security', 'finance', 'product', 'hr', 'compliance'] as const
 type Department = typeof DEPARTMENTS[number]
 
 async function fetchFromEngine(path: string): Promise<unknown> {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import RagStatus from '@/components/shared/RagStatus'
 import HealthScore from '@/components/shared/HealthScore'
+import ObservabilityWidget from '@/components/shared/ObservabilityWidget'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
@@ -405,6 +406,9 @@ export default function CeoDashboard() {
           </div>
         </div>
       </div>
+
+      {/* AI Observability — cross-project cost and LangSmith run timeline */}
+      <ObservabilityWidget />
     </div>
   )
 }

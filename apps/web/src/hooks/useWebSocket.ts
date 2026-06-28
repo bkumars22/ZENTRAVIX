@@ -148,6 +148,79 @@ const DEMO_SNAPSHOTS: Record<string, Record<string, unknown>> = {
     manager_summary: '• ARIA: 91% Socratic compliance across 12 languages — strong multilingual adoption\n• QAIP: 95.5% pipeline success, 412 tests generated, 0 P0 defects\n• SCIP: 1 supplier escalated to critical — GlobalParts Ltd requires procurement review',
     engineer_summary: 'ARIA — sessions: 1247 · socratic_rate: 0.91 · avg_score: 0.88\nQAIP — runs: 89 · success: 95.5% · tests_generated: 412 · gaps: 7\nSCIP — suppliers: 48 · critical: 1 · IsolationForest anomalies: 3\nAction: review SCIP supplier GlobalParts Ltd (risk_score=0.84, threshold=0.75)',
   },
+  hr: {
+    analysed: {
+      headcount: {
+        total: 142, planned: 150, open_roles: 8,
+        departments: {
+          Engineering: 62, Product: 18, Sales: 22,
+          'Customer Success': 15, Finance: 8, HR: 6, Compliance: 5, Infrastructure: 6,
+        },
+      },
+      hiring_pipeline: {
+        open_jds: 8, active_interviews: 12, offers_extended: 3, avg_days_to_hire: 34,
+        roles: [
+          { title: 'Senior ML Engineer',    dept: 'Engineering', stage: 'Interview', priority: 'HIGH' },
+          { title: 'Product Manager',       dept: 'Product',     stage: 'Offer',     priority: 'HIGH' },
+          { title: 'DevSecOps Engineer',    dept: 'Engineering', stage: 'Screening', priority: 'MEDIUM' },
+          { title: 'Customer Success Lead', dept: 'CS',          stage: 'Interview', priority: 'MEDIUM' },
+          { title: 'Data Engineer',         dept: 'Engineering', stage: 'Interview', priority: 'HIGH' },
+        ],
+      },
+      leaves: {
+        pending_approvals: 4, on_leave_today: 3,
+        leave_by_type: { CASUAL: 18, SICK: 7, EARNED: 23, UNPAID: 1 },
+      },
+      performance: {
+        reviews_due_this_quarter: 28, reviews_completed: 19,
+        avg_rating: 3.8, high_performers: 12, pip_count: 2,
+      },
+      attrition: { ytd_voluntary: 4, ytd_involuntary: 1, attrition_rate_pct: 3.5 },
+    },
+    anomalies: [
+      { severity: 'P2', project: 'HR', msg: '4 leave approvals pending > 48h — manager action needed' },
+    ],
+    ceo_summary: 'Headcount at 142/150 planned — 95% fill rate. 8 open roles in active hiring. Attrition YTD: 3.5% (healthy). Q2 performance reviews 68% complete.',
+    manager_summary: '• 4 leave approvals pending > 48h — action required\n• 5 high-priority open roles (ML Eng × 2, PM × 1, Data Eng × 1, CS Lead × 1)\n• 2 employees in PIP — bi-weekly check-in required\n• 12 high performers identified for Q3 retention conversations',
+    engineer_summary: 'Headcount: 142 total · Engineering 62 · Sales 22 · Product 18 · CS 15\nHiring pipeline: 8 JDs open · 12 interviews active · 3 offers extended · avg 34 days to hire\nLeave: 4 pending approvals · 3 on leave today\nPerf reviews: 19/28 completed · avg rating 3.8 · 2 on PIP',
+  },
+  compliance: {
+    analysed: {
+      eu_ai_act: {
+        overall_readiness_pct: 74,
+        high_risk_systems: ['QAIP Risk Scorer', 'ARIA Socratic Engine', 'SCIP Supplier Risk'],
+        checks: [
+          { area: 'Transparency',           status: 'PASS',    score: 0.91 },
+          { area: 'Human Oversight',        status: 'PASS',    score: 0.88 },
+          { area: 'Data Governance',        status: 'PARTIAL', score: 0.72 },
+          { area: 'Technical Robustness',   status: 'PASS',    score: 0.85 },
+          { area: 'Accuracy & Reliability', status: 'PARTIAL', score: 0.78 },
+          { area: 'Record-keeping',         status: 'FAIL',    score: 0.45 },
+        ],
+      },
+      gdpr: {
+        data_mapping_complete: true,
+        dpia_completed: 3, dpia_pending: 1,
+        consent_mechanisms_ok: true,
+        breach_incidents_ytd: 0,
+      },
+      security_posture: {
+        pen_test_last: '2026-04-15',
+        critical_cves_open: 0, high_cves_open: 2,
+        soc2_status: 'In Progress', iso27001_status: 'Planned',
+      },
+      audit_trail: {
+        events_30d: 4821, anomalous_events: 3, rbac_violations_7d: 0,
+      },
+    },
+    anomalies: [
+      { severity: 'P1', project: 'Compliance', msg: 'EU AI Act record-keeping failing — LangSmith traces must be archived (45%)' },
+      { severity: 'P2', project: 'Compliance', msg: '1 DPIA pending for SCIP supplier data processing' },
+    ],
+    ceo_summary: 'EU AI Act readiness at 74% — Record-keeping control failing (45%). GDPR posture strong with 0 breach incidents YTD. 2 CVE highs open, no criticals. SOC 2 Type II in progress.',
+    manager_summary: '• EU AI Act: record-keeping must reach 80%+ before Q3 audit — assign LangSmith archival task\n• 1 DPIA pending for SCIP supplier data processing — legal review needed by end of sprint\n• 2 open high CVEs — DevSecOps to patch before next pen test\n• SOC 2 Type II prep: 6 controls remain for evidence collection',
+    engineer_summary: 'EU AI Act record-keeping: FAIL (0.45) — LangSmith trace export + archival pipeline needed\nGDPR: data mapping ✓ · DPIAs: 3/4 complete · 0 breaches YTD\nSecurity: 0 critical CVEs · 2 high CVEs open · pen test: 2026-04-15\nAudit trail: 4821 events (30d) · 3 anomalous · 0 RBAC violations (7d)',
+  },
 }
 
 export function useWebSocket(role: RoleLevel) {
@@ -169,7 +242,7 @@ export function useWebSocket(role: RoleLevel) {
 
     socket.on('qaip:update', (data: unknown) => setLastEvent({ event: 'qaip:update', data }))
 
-    const DEPTS = ['devops', 'security', 'finance', 'product']
+    const DEPTS = ['devops', 'security', 'finance', 'product', 'hr', 'compliance']
     DEPTS.forEach((dept) => {
       socket.on(`dept:${dept}:update`, (data: unknown) => {
         setLastEvent({ event: `dept:${dept}:update`, data })

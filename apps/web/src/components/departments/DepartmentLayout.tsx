@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import type { RoleLevel } from '@/hooks/useWebSocket'
 
-export type DeptTab = 'devops' | 'security' | 'finance' | 'product'
+export type DeptTab = 'devops' | 'security' | 'finance' | 'product' | 'hr' | 'compliance'
 
 interface CriticalBadge { dept: string; severity: string; msg: string }
 
@@ -13,10 +13,12 @@ interface DepartmentLayoutProps {
 }
 
 const TAB_META: Record<DeptTab, { label: string; icon: string; desc: string }> = {
-  devops:   { label: 'DevOps',   icon: '⚙️', desc: 'CI/CD · Railway Health · Deployments' },
-  security: { label: 'Security', icon: '🔒', desc: 'deepeval · OWASP · RBAC Audit' },
-  finance:  { label: 'Finance',  icon: '💰', desc: 'AI Costs · Infra Spend · Budget Tracking' },
-  product:  { label: 'Product',  icon: '📊', desc: 'ARIA Sessions · QAIP Pipelines · SCIP Suppliers' },
+  devops:     { label: 'DevOps',      icon: '⚙️', desc: 'CI/CD · Railway Health · Deployments' },
+  security:   { label: 'Security',    icon: '🔒', desc: 'deepeval · OWASP · RBAC Audit' },
+  finance:    { label: 'Finance',     icon: '💰', desc: 'AI Costs · Infra Spend · Budget Tracking' },
+  product:    { label: 'Product',     icon: '📊', desc: 'ARIA Sessions · QAIP Pipelines · SCIP Suppliers' },
+  hr:         { label: 'HR',          icon: '👥', desc: 'Headcount · Hiring · Performance · Attrition' },
+  compliance: { label: 'Compliance',  icon: '⚖️', desc: 'EU AI Act · GDPR · SOC 2 · Audit Trail' },
 }
 
 const ROLE_LEVELS: RoleLevel[] = ['CEO', 'MANAGER', 'LEAD', 'SENIOR', 'JUNIOR']

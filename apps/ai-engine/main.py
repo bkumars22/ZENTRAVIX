@@ -29,7 +29,7 @@ def _do_seed():
         logger.warning("ZENTRAVIX knowledge seed failed (non-fatal): %s", exc)
 
 
-DEPARTMENTS = ["devops", "security", "finance", "product"]
+DEPARTMENTS = ["devops", "security", "finance", "product", "hr", "compliance"]
 
 
 def _run_all_departments():
@@ -359,31 +359,60 @@ class DeptRefreshResponse(BaseModel):
 
 @app.get("/dept/{department}/snapshot")
 def dept_snapshot(department: str):
-    """Return the latest cached snapshot for a department (Redis → DB fallback)."""
+    """Return the latest snapshot for a department.
+
+    Priority: LangGraph pipeline cache → dept_snapshots fallback (always available).
+    The fallback serves structured demo data with AI summaries when the full
+    pipeline (GitHub Actions, Railway health checks) is not connected.
+    """
     if department not in DEPARTMENTS:
         raise HTTPException(status_code=400, detail=f"Unknown department: {department}. Valid: {DEPARTMENTS}")
-    from departments.langgraph_pipeline import get_cached_snapshot
-    cached = get_cached_snapshot(department)
-    if cached:
-        return {"source": "cache", **cached}
-    raise HTTPException(status_code=404, detail=f"No snapshot available for {department} — trigger /dept/{department}/refresh first")
+
+    # Try the full pipeline cache first (only for original 4 departments)
+    if department in ("devops", "security", "finance", "product"):
+        try:
+            from departments.langgraph_pipeline import get_cached_snapshot
+            cached = get_cached_snapshot(department)
+            if cached:
+                return {"source": "pipeline_cache", **cached}
+        except Exception:
+            pass  # pipeline not running — fall through to snapshot fallback
+
+    # Always-available fallback: structured snapshots from dept_snapshots module
+    from agents.dept_snapshots import get_snapshot as _snap
+    return {"source": "snapshot", **_snap(department)}
 
 
 @app.post("/dept/{department}/refresh", response_model=DeptRefreshResponse)
 def dept_refresh(department: str):
-    """Trigger an immediate LangGraph pipeline run for the given department."""
+    """Trigger an immediate refresh for the given department."""
     if department not in DEPARTMENTS:
         raise HTTPException(status_code=400, detail=f"Unknown department: {department}. Valid: {DEPARTMENTS}")
-    from departments.langgraph_pipeline import run_department
-    result = run_department(department)
-    if "error" in result:
-        raise HTTPException(status_code=500, detail=result["error"])
+
+    from agents.dept_snapshots import invalidate as _inv, get_snapshot as _snap
+    _inv(department)
+    data = _snap(department)
+    anomalies = data.get("anomalies", [])
+
+    # Also try the full LangGraph pipeline if available
+    try:
+        from departments.langgraph_pipeline import run_department
+        result = run_department(department)
+        if "error" not in result:
+            return DeptRefreshResponse(
+                department=department, status="refreshed",
+                snapshot_id=result.get("snapshot_id", ""),
+                critical_count=result.get("critical_count", 0),
+                anomaly_count=len(result.get("anomalies", [])),
+            )
+    except Exception:
+        pass
+
     return DeptRefreshResponse(
-        department=department,
-        status="refreshed",
-        snapshot_id=result.get("snapshot_id", ""),
-        critical_count=result.get("critical_count", 0),
-        anomaly_count=len(result.get("anomalies", [])),
+        department=department, status="refreshed",
+        snapshot_id="",
+        critical_count=sum(1 for a in anomalies if a.get("severity") == "P0"),
+        anomaly_count=len(anomalies),
     )
 
 
