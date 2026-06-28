@@ -21,6 +21,7 @@ from langgraph.graph import StateGraph, END
 
 from .role_summaries   import generate_ceo, generate_manager, generate_engineer
 from .websocket_push   import push_snapshot, push_critical_alert
+from langsmith_utils   import trace_node
 
 logger = logging.getLogger("zentravix.dept.langgraph")
 
@@ -62,6 +63,7 @@ def node_collect(state: DeptState) -> DeptState:
             "critical_count": raw.get("critical_count", 0)}
 
 
+@trace_node("node_analyse", "ZENTRAVIX-Production")
 def node_analyse(state: DeptState) -> DeptState:
     """Enrich raw data with computed stats, severity buckets, trend labels."""
     raw  = state["raw"]
@@ -113,6 +115,7 @@ def node_analyse(state: DeptState) -> DeptState:
     return {**state, "analysed": analysed}
 
 
+@trace_node("node_ceo_summary", "ZENTRAVIX-Production")
 def node_ceo_summary(state: DeptState) -> DeptState:
     summary = generate_ceo(state["department"], state["analysed"], state["anomalies"])
     return {**state, "ceo_summary": summary}
@@ -123,6 +126,7 @@ def node_manager_summary(state: DeptState) -> DeptState:
     return {**state, "manager_summary": summary}
 
 
+@trace_node("node_engineer_summary", "ZENTRAVIX-Production")
 def node_engineer_summary(state: DeptState) -> DeptState:
     summary = generate_engineer(state["department"], state["analysed"], state["anomalies"])
     return {**state, "engineer_summary": summary}
