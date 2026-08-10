@@ -103,46 +103,66 @@ Role-specific framing (CEO gets executive summary, Manager gets blockers)
 ## Architecture
 
 ```
-                         ZENTRAVIX
-                    
-                                                            
-   Browser     Next.js 14 (GitHub Pages)            
-                      CEO / VP / Manager / Individual       
-                      OrgAIAssistant component              
-                    
-                                     HTTPS REST + WebSocket
-                    
-                      Node.js + Express API (Railway)       
-                      Socket.io real-time push              
-                    
-                                        
-                 
-                PostgreSQL        Python FastAPI AI Engine    
-                (Railway)         LangGraph 6-node agent      
-                pgvector          RAG: pgvector + Groq/Claude 
-                 
-                                           
-                   
-            QAIP webhooks        Re-index every 15 min
-            SCIP supplier data   (apscheduler)
-            ARIA student data
+┌─────────────────────────────────────────────────────────────┐
+│  Browser — Next.js 14 (GitHub Pages)                         │
+│  CEO / VP / Manager / Individual / Department dashboards     │
+│  OrgAIAssistant component                                    │
+└──────────────────────────┬────────────────────────────────────┘
+                           │ HTTPS REST + WebSocket
+┌──────────────────────────▼────────────────────────────────────┐
+│  Node.js + Express API (Railway) — Socket.io real-time push  │
+└──────┬────────────────────────────────────────┬────────────────┘
+      │                                        │
+┌──────▼──────────┐                  ┌──────────▼───────────────┐
+│  PostgreSQL      │                  │  Python FastAPI AI Engine │
+│  (Railway)       │                  │  Two LangGraph agents:    │
+│  pgvector        │                  │  intelligence.py (6-node) │
+└──────────────────┘                  │  departments/ (7-node)    │
+                                      │  RAG: pgvector + Groq/Claude│
+                                      │  LangSmith tracing         │
+                                      └──────────┬─────────────────┘
+                                                │
+                          QAIP webhooks · SCIP supplier data
+                          ARIA student data · re-index every 15 min (apscheduler)
 ```
 
-### LangGraph Intelligence Pipeline (6 nodes)
+### LangGraph Intelligence Pipeline (6 nodes) — role summaries + RAG Q&A
 
 ```
 collect_data        ← SEEDED_DATA + live QAIP webhook updates
-     
+     ↓
 detect_anomalies    ← P0 checks, velocity thresholds, revenue alerts
-     
+     ↓
 generate_alerts     ← CRITICAL/WARNING per anomaly
-     
+     ↓
 generate_summaries  ← role-based summaries (CEO/VP/MANAGER/JUNIOR)
-     
-answer_question     ← NEW: pgvector RAG → Claude synthesis
-     
+     ↓
+answer_question     ← pgvector RAG → Claude synthesis
+     ↓
 update_cache        ← Redis cache 5-min TTL
 ```
+
+### LangGraph Department Pipeline (7 nodes) — per-department snapshots
+
+```
+collect            ← DevOps/Finance/HR/Product/Security/Compliance data collectors
+     ↓
+analyse            ← anomaly + trend analysis per department
+     ↓
+ceo_summary  ─┐
+manager_summary ├─ role-specific department summaries, generated in parallel
+engineer_summary ┘
+     ↓
+store               ← cached department snapshot (see agents/dept_snapshots.py)
+     ↓
+push_alerts         ← Socket.io real-time push to open dashboards
+```
+
+### Department Dashboards
+
+Six department views beyond the CEO/VP/Manager/Individual role dashboards, at
+`/dashboard/departments`: **DevOps**, **Finance**, **HR**, **Product**,
+**Security**, **Compliance** — each fed by the department pipeline above.
 
 ---
 
@@ -158,6 +178,7 @@ update_cache        ← Redis cache 5-min TTL
 | Database | PostgreSQL 15 + pgvector (Railway) |
 | Cache | Redis (Railway) |
 | Scheduling | apscheduler (re-index every 15 min) |
+| Observability | LangSmith tracing across both LangGraph agents |
 | CI/CD | GitHub Actions → Railway (API + AI) + GitHub Pages (frontend) |
 
 ---
